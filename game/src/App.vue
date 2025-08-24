@@ -309,17 +309,22 @@ export default {
         const xOverlap = character.value.x < platform.x + platform.width &&
                          character.value.x + 40 > platform.x
         
-        // 캐릭터의 발이 플랫폼 위쪽에서 착지하는지 확인
-        const isLandingOnTop = character.value.y + 40 >= platform.y &&
-                               character.value.y + 40 <= platform.y + platform.height + 5 &&
-                               character.value.velocityY > 0 && // 아래로 떨어지는 중
-                               character.value.y < platform.y // 캐릭터 머리가 플랫폼보다 위에 있음
+        // 캐릭터의 발 위치
+        const characterBottom = character.value.y + 40
+        const platformTop = platform.y
+        const platformBottom = platform.y + platform.height
         
-        if (xOverlap && isLandingOnTop) {
-          character.value.y = platform.y - 40
-          character.value.velocityY = 0 // 착지 시 점프하지 않음
+        // 플랫폼 위에 있는지 확인 (더 관대한 판정)
+        const isOnPlatform = characterBottom >= platformTop - 10 && // 10픽셀 여유 
+                             characterBottom <= platformBottom + 10 && // 10픽셀 여유
+                             character.value.velocityY >= -2 // 강하게 위로 올라가는 중이 아님
+        
+        // 착지 조건: x축 겹침 + 플랫폼 위에 위치 + 캐릭터 중심이 플랫폼보다 위에
+        if (xOverlap && isOnPlatform && character.value.y + 20 <= platformTop + 5) {
+          character.value.y = platformTop - 40
+          character.value.velocityY = Math.max(character.value.velocityY, 0) // 아래쪽 속도만 허용
           character.value.onGround = true
-          console.log('캐릭터 착지! onGround = true')
+          console.log('캐릭터 착지! onGround = true, platform y:', platformTop, 'character bottom:', characterBottom)
         }
       })
       
