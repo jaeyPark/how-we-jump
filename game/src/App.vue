@@ -149,7 +149,7 @@ export default {
     const character = ref({
       x: 165,
       y: 500,
-      velocityY: -12,
+      velocityY: -10,
       velocityX: 0,
       onGround: false
     })
@@ -345,7 +345,7 @@ export default {
       character.value.velocityX = -5
       // 왼쪽 이동 시 플랫폼에 있을 때만 점프
       if (character.value.onGround) {
-        character.value.velocityY = -12
+        character.value.velocityY = -10
         character.value.onGround = false
       }
     }
@@ -354,7 +354,7 @@ export default {
       character.value.velocityX = 5
       // 오른쪽 이동 시 플랫폼에 있을 때만 점프
       if (character.value.onGround) {
-        character.value.velocityY = -12
+        character.value.velocityY = -10
         character.value.onGround = false
       }
     }
