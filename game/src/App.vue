@@ -149,7 +149,7 @@ export default {
     const character = ref({
       x: 165,
       y: 500,
-      velocityY: -12,
+      velocityY: -10,
       velocityX: 0,
       onGround: false
     })
@@ -344,14 +344,14 @@ export default {
     const moveLeft = () => {
       character.value.velocityX = -5
       // 왼쪽 이동 시 항상 점프 (onGround 조건 제거)
-      character.value.velocityY = -12
+      character.value.velocityY = -10
       character.value.onGround = false
     }
     
     const moveRight = () => {
       character.value.velocityX = 5
       // 오른쪽 이동 시 항상 점프 (onGround 조건 제거)
-      character.value.velocityY = -12
+      character.value.velocityY = -10
       character.value.onGround = false
     }
     
