@@ -124,7 +124,7 @@ export default {
         name: 'JT', 
         emoji: '🐨', 
         color: '#9FA4A9',
-        image: '/img/koala.png',
+        image: '/how-we-jump/img/koala.png',
         sitImage: '/img/koala-sit.png'
       },
       { 
@@ -132,7 +132,7 @@ export default {
         name: 'HY', 
         emoji: '🐶', 
         color: '#F9F9F9',
-        image: '/img/dog.png',
+        image: '/how-we-jump/img/dog.png',
         sitImage: '/img/dog-sit.png'
       },
       { 
@@ -140,7 +140,7 @@ export default {
         name: 'JJ', 
         emoji: '🐻', 
         color: '#C68958',
-        image: '/img/bear.png',
+        image: '/how-we-jump/img/bear.png',
         sitImage: '/img/bear-sit.png'
       }
     ])
