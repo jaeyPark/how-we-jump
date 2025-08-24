@@ -72,7 +72,7 @@
         }"
       >
         <img 
-          src="/how-we-jump/img/brick.png"
+          src="/img/brick.png"
           alt="brick platform"
           class="platform-sprite"
         />
