@@ -112,7 +112,8 @@ const player = {
     velocityX: 0,
     gravity: 0.3, // 중력 감소 (0.8에서 0.6으로)
     jumpPower: -10, // 점프력 감소 (-15에서 -12로)
-    speed: 3 // 이동 속도 감소 (5에서 3으로)
+    speed: 3, // 이동 속도 감소 (5에서 3으로)
+    onPlatform: false // 플랫폼 착지 상태
 };
 
 // 플랫폼 배열
@@ -363,7 +364,7 @@ canvas.addEventListener('touchstart', (e) => {
     isTouching = true;
 
     // 점프 (화면 터치 시)
-    if (player.velocityY >= 0) {
+    if (player.onPlatform) {
         player.velocityY = player.jumpPower;
     }
 });
@@ -399,7 +400,7 @@ canvas.addEventListener('mousedown', (e) => {
     isTouching = true;
 
     // 점프 (마우스 클릭 시)
-    if (player.velocityY >= 0) {
+    if (player.onPlatform) {
         player.velocityY = player.jumpPower;
     }
 });
@@ -518,6 +519,7 @@ function startGame() {
     player.y = canvas.height - 100;
     player.velocityY = 0;
     player.velocityX = 0;
+    player.onPlatform = false;
     player.invincible = false;
 
     // 게임 요소들 초기화
@@ -544,7 +546,7 @@ function updatePlayer() {
     }
 
     // 점프 (플랫폼 위에서만)
-    if ((keys[' '] || keys['ArrowUp'] || keys['w'] || keys['W']) && player.velocityY >= -2) {
+    if ((keys[' '] || keys['ArrowUp'] || keys['w'] || keys['W']) && player.onPlatform) {
         player.velocityY = player.jumpPower;
     }
 
@@ -563,7 +565,7 @@ function updatePlayer() {
     }
 
     // 플랫폼 충돌 검사
-    let onPlatform = false;
+    player.onPlatform = false;
     for (let platform of platforms) {
         if (player.x < platform.x + platform.width &&
             player.x + player.width > platform.x &&
@@ -573,7 +575,7 @@ function updatePlayer() {
 
             player.y = platform.y - player.height;
             player.velocityY = 0;
-            onPlatform = true;
+            player.onPlatform = true;
             break;
         }
     }
@@ -779,6 +781,7 @@ function restartGame() {
     player.y = canvas.height - 100;
     player.velocityY = 0;
     player.velocityX = 0;
+    player.onPlatform = false;
     player.invincible = false;
     createInitialPlatforms();
     items = [];
