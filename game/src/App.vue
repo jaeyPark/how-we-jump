@@ -212,12 +212,12 @@ export default {
         height: 20
       })
       
-      // 초기 플랫폼들 생성 (기존과 동일하게 8개)
-      for (let i = 0; i < 8; i++) {
+      // 초기 플랫폼들 생성 (더 많은 플랫폼, 더 가까운 간격)
+      for (let i = 0; i < 12; i++) {
         platforms.value.push({
           id: i + 1,
-          x: Math.random() * (360 - 100), // 기존과 동일한 x 범위
-          y: 500 - i * 80, // 기존과 동일한 간격
+          x: Math.random() * (360 - 100),
+          y: 500 - i * 50, // 간격을 80에서 50으로 줄임
           width: 100,
           height: 20
         })
@@ -244,8 +244,8 @@ export default {
       // 화면 밖으로 나간 플랫폼 제거
       platforms.value = platforms.value.filter(platform => platform.y < 700)
       
-      // 새 플랫폼 생성 (기존과 동일하게 8개 유지)
-      if (platforms.value.length < 8) {
+      // 새 플랫폼 생성 (더 많은 플랫폼 유지)
+      if (platforms.value.length < 12) {
         createNewPlatform()
       }
     }
@@ -301,7 +301,7 @@ export default {
             character.value.velocityY > 0) {
           
           character.value.y = platform.y - 40
-          character.value.velocityY = -10 // Jump (더 낮은 점프)
+          character.value.velocityY = -12 // Jump (점프 높이 증가)
           character.value.onGround = true
           console.log('캐릭터 착지! onGround = true')
         }
