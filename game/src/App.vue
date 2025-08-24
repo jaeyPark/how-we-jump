@@ -343,16 +343,20 @@ export default {
     
     const moveLeft = () => {
       character.value.velocityX = -5
-      // 왼쪽 이동 시 항상 점프 (onGround 조건 제거)
-      character.value.velocityY = -12
-      character.value.onGround = false
+      // 왼쪽 이동 시 플랫폼에 있을 때만 점프
+      if (character.value.onGround) {
+        character.value.velocityY = -12
+        character.value.onGround = false
+      }
     }
     
     const moveRight = () => {
       character.value.velocityX = 5
-      // 오른쪽 이동 시 항상 점프 (onGround 조건 제거)
-      character.value.velocityY = -12
-      character.value.onGround = false
+      // 오른쪽 이동 시 플랫폼에 있을 때만 점프
+      if (character.value.onGround) {
+        character.value.velocityY = -12
+        character.value.onGround = false
+      }
     }
     
 
