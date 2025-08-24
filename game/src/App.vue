@@ -88,7 +88,11 @@
     <!-- Game Over Screen -->
     <div v-if="gameState === 'gameOver'" class="game-over-overlay">
       <div class="game-over-panel">
-        <h2 class="game-over-title">{{ gameOverMessage }}</h2>
+        <h2 class="game-over-title">
+          <span v-if="gameTime >= 60" class="this-is">THIS IS</span>
+          <span v-if="gameTime >= 60" class="how-we-do">HOW WE DO!</span>
+          <span v-else>GAME OVER</span>
+        </h2>
         <p class="game-over-score">점수: {{ score }}</p>
         <p class="game-over-time">시간: {{ Math.floor(gameTime) }}s</p>
         <div class="game-over-buttons">
@@ -145,7 +149,7 @@ export default {
     const character = ref({
       x: 165,
       y: 500,
-      velocityY: 0,
+      velocityY: -12,
       velocityX: 0,
       onGround: false
     })
@@ -213,7 +217,7 @@ export default {
       })
       
       // 초기 플랫폼들 생성 (더 많은 플랫폼, 더 가까운 간격)
-      for (let i = 0; i < 12; i++) {
+      for (let i = 0; i < 15; i++) {
         platforms.value.push({
           id: i + 1,
           x: Math.random() * (360 - 100),
@@ -224,15 +228,23 @@ export default {
       }
     }
     
-    const createNewPlatform = () => {
-      const newPlatform = {
-        id: Date.now(),
-        x: Math.random() * (360 - 100), // 기존과 동일한 x 범위
-        y: -20, // 기존과 동일한 시작 위치
-        width: 100,
-        height: 20
+    const createNewPlatforms = () => {
+      // 가장 위에 있는 플랫폼 찾기
+      const topPlatform = platforms.value.reduce((top, platform) => 
+        platform.y < top.y ? platform : top
+      )
+      
+      // 여러 개의 플랫폼을 한 번에 생성 (처음 시작할 때처럼)
+      for (let i = 0; i < 3; i++) {
+        const newPlatform = {
+          id: Date.now() + i,
+          x: Math.random() * (360 - 100),
+          y: topPlatform.y - 50 - (i * 50), // 위쪽으로 50px씩 간격을 두고 생성
+          width: 100,
+          height: 20
+        }
+        platforms.value.push(newPlatform)
       }
-      platforms.value.push(newPlatform)
     }
     
     const updatePlatforms = () => {
@@ -244,9 +256,9 @@ export default {
       // 화면 밖으로 나간 플랫폼 제거
       platforms.value = platforms.value.filter(platform => platform.y < 700)
       
-      // 새 플랫폼 생성 (더 많은 플랫폼 유지)
-      if (platforms.value.length < 12) {
-        createNewPlatform()
+      // 새 플랫폼 생성 (더 빠른 생성)
+      if (platforms.value.length < 15) {
+        createNewPlatforms()
       }
     }
     
@@ -301,7 +313,7 @@ export default {
             character.value.velocityY > 0) {
           
           character.value.y = platform.y - 40
-          character.value.velocityY = -12 // Jump (점프 높이 증가)
+          character.value.velocityY = 0 // 착지 시 점프하지 않음
           character.value.onGround = true
           console.log('캐릭터 착지! onGround = true')
         }
@@ -314,17 +326,29 @@ export default {
         console.log('캐릭터 상태: 점프중 (onGround = false)')
       }
       
-      // Screen boundaries (wrap around)
+      // Screen boundaries (wrap around for x-axis, limit for y-axis)
       if (character.value.x < -30) character.value.x = 330
       if (character.value.x > 330) character.value.x = -30
+      
+      // 캐릭터가 화면 위로 너무 올라가지 않도록 제한
+      if (character.value.y < 50) {
+        character.value.y = 50
+        character.value.velocityY = Math.max(character.value.velocityY, 0) // 위쪽 속도 제거
+      }
     }
     
     const moveLeft = () => {
       character.value.velocityX = -5
+      // 왼쪽 이동 시 항상 점프 (onGround 조건 제거)
+      character.value.velocityY = -12
+      character.value.onGround = false
     }
     
     const moveRight = () => {
       character.value.velocityX = 5
+      // 오른쪽 이동 시 항상 점프 (onGround 조건 제거)
+      character.value.velocityY = -12
+      character.value.onGround = false
     }
     
 
