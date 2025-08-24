@@ -72,7 +72,7 @@
         }"
       >
         <img 
-          src="/img/brick.png"
+          src="/how-we-jump/img/brick.png"
           alt="brick platform"
           class="platform-sprite"
         />
@@ -124,24 +124,24 @@ export default {
         name: 'JT', 
         emoji: '🐨', 
         color: '#9FA4A9',
-        image: '/img/koala.png',
-        sitImage: '/img/koala-sit.png'
+        image: '/how-we-jump/img/koala.png',
+        sitImage: '/how-we-jump/img/koala-sit.png'
       },
       { 
         id: 'hy', 
         name: 'HY', 
         emoji: '🐶', 
         color: '#F9F9F9',
-        image: '/img/dog.png',
-        sitImage: '/img/dog-sit.png'
+        image: '/how-we-jump/img/dog.png',
+        sitImage: '/how-we-jump/img/dog-sit.png'
       },
       { 
         id: 'jj', 
         name: 'JJ', 
         emoji: '🐻', 
         color: '#C68958',
-        image: '/img/bear.png',
-        sitImage: '/img/bear-sit.png'
+        image: '/how-we-jump/img/bear.png',
+        sitImage: '/how-we-jump/img/bear-sit.png'
       }
     ])
     
