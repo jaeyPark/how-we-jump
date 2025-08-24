@@ -75,7 +75,7 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: url('./assets/brickwall.png');
+    background-image: url('./img/brickwall.png');
     background-size: cover;
     background-repeat: repeat;
     background-position: center;
@@ -558,6 +558,23 @@ body {
     height: 100%;
     object-fit: contain;
     image-rendering: pixelated;
+}
+
+.graffiti {
+    position: absolute;
+    z-index: 2;
+    /* 배경과 플랫폼 사이에 위치 */
+    opacity: 0.8;
+    /* 약간 투명하게 */
+}
+
+.graffiti-sprite {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    image-rendering: pixelated;
+    filter: drop-shadow(1px 1px 2px rgba(0, 0, 0, 0.5));
+    /* 그림자 효과 */
 }
 
 /* Responsive Design */

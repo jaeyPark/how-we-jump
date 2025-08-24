@@ -246,8 +246,7 @@ export default {
         platforms.value.push(newPlatform)
       }
     }
-    
-    const updatePlatforms = () => {
+        const updatePlatforms = () => {
       // 플랫폼들을 아래로 이동
       platforms.value.forEach(platform => {
         platform.y += gameSpeed.value
@@ -306,12 +305,17 @@ export default {
       // Check platform collisions
       character.value.onGround = false
       platforms.value.forEach(platform => {
-        if (character.value.x < platform.x + platform.width &&
-            character.value.x + 40 > platform.x &&
-            character.value.y + 40 > platform.y &&
-            character.value.y + 40 < platform.y + platform.height + 10 &&
-            character.value.velocityY > 0) {
-          
+        // 캐릭터와 플랫폼의 x축 겹침 확인
+        const xOverlap = character.value.x < platform.x + platform.width &&
+                         character.value.x + 40 > platform.x
+        
+        // 캐릭터의 발이 플랫폼 위쪽에서 착지하는지 확인
+        const isLandingOnTop = character.value.y + 40 >= platform.y &&
+                               character.value.y + 40 <= platform.y + platform.height + 5 &&
+                               character.value.velocityY > 0 && // 아래로 떨어지는 중
+                               character.value.y < platform.y // 캐릭터 머리가 플랫폼보다 위에 있음
+        
+        if (xOverlap && isLandingOnTop) {
           character.value.y = platform.y - 40
           character.value.velocityY = 0 // 착지 시 점프하지 않음
           character.value.onGround = true
@@ -330,9 +334,9 @@ export default {
       if (character.value.x < -30) character.value.x = 330
       if (character.value.x > 330) character.value.x = -30
       
-      // 캐릭터가 화면 위로 너무 올라가지 않도록 제한
-      if (character.value.y < 50) {
-        character.value.y = 50
+      // 캐릭터가 화면 위로 너무 올라가지 않도록 제한 (발 부분 기준)
+      if (character.value.y + 40 < 50) { // 캐릭터 발 부분이 화면 위에 닿으면
+        character.value.y = 10 // 발이 50에 위치하도록 조정 (50 - 40 = 10)
         character.value.velocityY = Math.max(character.value.velocityY, 0) // 위쪽 속도 제거
       }
     }
