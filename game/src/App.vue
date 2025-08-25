@@ -10,6 +10,7 @@
         <p class="game-text">- PLAY</p>
         <p class="game-text press-play">PRESS PLAY</p>
         <button class="game-button play-button" @click="startCharacterSelect">PLAY</button>
+        <button class="game-button how-to-button" @click="showHowTo">HOW TO</button>
         <p class="game-text credits">MADE BY INNING</p>
       </div>
     </div>
@@ -33,6 +34,32 @@
           </div>
         </div>
         <button class="game-button start-button" @click="startGame">START</button>
+      </div>
+    </div>
+    
+    <!-- How To Screen -->
+    <div v-if="gameState === 'howTo'" class="how-to-screen">
+      <div class="how-to-content">
+        <h2 class="how-to-title">게임 방법</h2>
+        <div class="how-to-text">
+          <p><strong>목표:</strong> R=VD를 향해 올라가자!</p>
+          <p><strong>제한 시간:</strong> 1분 (IN A MINUTE)</p>
+          <br>
+          <p><strong>조작법:</strong></p>
+          <p>• 화면 왼쪽 터치: 왼쪽으로 점프</p>
+          <p>• 화면 오른쪽 터치: 오른쪽으로 점프</p>
+          <br>
+          <p><strong>아이템:</strong></p>
+          <div class="item-example">
+            <img src="/img/heart.png" alt="heart" class="item-example-img" />
+            <span>하트: +20점</span>
+          </div>
+          <div class="item-example">
+            <img src="/img/inning.png" alt="inning" class="item-example-img" />
+            <span>이닝: +50점 + 5ive 효과</span>
+          </div>
+        </div>
+        <button class="game-button back-button" @click="backToStart">BACK</button>
       </div>
     </div>
     
@@ -259,6 +286,16 @@ export default {
     const startCharacterSelect = () => {
       console.log('Starting character select...')
       gameState.value = 'characterSelect'
+    }
+    
+    const showHowTo = () => {
+      console.log('Showing how to...')
+      gameState.value = 'howTo'
+    }
+
+    const backToStart = () => {
+      console.log('Backing to start...')
+      gameState.value = 'start'
     }
     
     const selectCharacter = (charId) => {
@@ -711,6 +748,8 @@ export default {
       startCharacterSelect,
       selectCharacter,
       startGame,
+      showHowTo,
+      backToStart,
       moveLeft,
       moveRight,
       jump,

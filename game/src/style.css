@@ -110,7 +110,15 @@ body {
 
 .start-content {
     text-align: center;
-    color: white;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.start-content .game-button {
+    margin: 5px 0;
 }
 
 .start-content .game-title {
@@ -660,4 +668,88 @@ body {
         height: 100vh;
         border-radius: 0;
     }
+}
+
+/* How To Screen */
+.how-to-screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 20;
+}
+
+.how-to-content {
+    background: rgba(139, 90, 43, 0.95);
+    border: 3px solid var(--dark-brown);
+    border-radius: 15px;
+    padding: 30px;
+    text-align: center;
+    max-width: 320px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+}
+
+.how-to-title {
+    color: var(--neon-lime-green);
+    font-size: 24px;
+    margin-bottom: 20px;
+    /* text-shadow: 0 0 10px var(--neon-lime-green); */
+}
+
+.how-to-text {
+    color: white;
+    font-size: 14px;
+    line-height: 1.6;
+    text-align: left;
+    margin-bottom: 25px;
+}
+
+.how-to-text p {
+    margin-bottom: 8px;
+}
+
+.how-to-text strong {
+    color: var(--hot-pink);
+}
+
+.item-example {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    padding: 5px 0;
+}
+
+.item-example-img {
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+    object-fit: contain;
+    image-rendering: pixelated;
+}
+
+.item-example span {
+    color: white;
+    font-size: 14px;
+}
+
+/* Button Styles */
+.how-to-button {
+    background: var(--vivid-purple);
+    border: 2px solid var(--vivid-purple);
+    margin-top: 10px;
+}
+
+.back-button {
+    background: var(--bright-orange);
+    border: 2px solid var(--bright-orange);
+}
+
+.back-button:hover {
+    background: var(--hot-pink);
+    border-color: var(--hot-pink);
 }
