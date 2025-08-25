@@ -42,7 +42,7 @@
       <div class="how-to-content">
         <h2 class="how-to-title">게임 방법</h2>
         <div class="how-to-text">
-          <p><strong>목표:</strong> R=VD를 향해 올라가자!</p>
+          <p><strong>목표:</strong> R=VD보다 높은 곳에 올라가자!</p>
           <p><strong>제한 시간:</strong> 1분 (IN A MINUTE)</p>
           <br>
           <p><strong>조작법:</strong></p>
@@ -149,7 +149,6 @@
           top: goalPosition.y + 'px'
         }"
       >
-        <div class="goal-label">GOAL</div>
         <div class="goal-text">R=VD</div>
       </div>
       
@@ -254,7 +253,7 @@ export default {
     
     // Goal
     const goalReached = ref(false)
-    const goalPosition = ref({ x: 130, y: -1000, width: 100, height: 100 })
+    const goalPosition = ref({ x: 130, y: -1500, width: 100, height: 100 })
     
     // Computed
     const selectedCharacterData = computed(() => {
@@ -316,7 +315,7 @@ export default {
       character.value = {
         x: 165,
         y: 450,
-        velocityY: 0,
+        velocityY: 0, // 초기 점프 취소
         velocityX: 0,
         onGround: false,
         direction: 'right'
@@ -331,7 +330,7 @@ export default {
       
       // Reset goal
       goalReached.value = false
-      goalPosition.value = { x: 130, y: -1000, width: 100, height: 100 }
+      goalPosition.value = { x: 130, y: -1500, width: 100, height: 100 }
       
       // Start game loop
       startGameLoop()
@@ -353,6 +352,11 @@ export default {
       for (let i = 0; i < 15; i++) {
         const newPlatform = generatePlatformWithSpacing(500 - i * 50)
         platforms.value.push(newPlatform)
+        
+        // 아이템 생성 (확률적으로)
+        if (Math.random() < 0.5) { // 50% 확률로 아이템 생성 (30%에서 증가)
+          createItemOnPlatform(newPlatform)
+        }
       }
     }
     
@@ -379,11 +383,18 @@ export default {
       
       // 여러 개의 플랫폼을 한 번에 생성 (x축 간격을 넓게)
       for (let i = 0; i < 3; i++) {
-        const newPlatform = generatePlatformWithSpacing(topPlatform.y - 50 - (i * 50))
+        const newY = topPlatform.y - 50 - (i * 50)
+        
+        // R=VD 위치보다 높은 곳에는 플랫폼을 생성하지 않음
+        if (newY < goalPosition.value.y) {
+          continue
+        }
+        
+        const newPlatform = generatePlatformWithSpacing(newY)
         platforms.value.push(newPlatform)
         
         // 아이템 생성 (확률적으로)
-        if (Math.random() < 0.3) { // 30% 확률로 아이템 생성
+        if (Math.random() < 0.5) { // 50% 확률로 아이템 생성 (30%에서 증가)
           createItemOnPlatform(newPlatform)
         }
       }
@@ -486,19 +497,11 @@ export default {
     const checkGoalCollision = () => {
       if (goalReached.value) return
       
-      // 캐릭터와 목표 지점의 충돌 감지 (더 관대하게)
-      const xOverlap = character.value.x < goalPosition.value.x + goalPosition.value.width &&
-                       character.value.x + 28 > goalPosition.value.x
-      const yOverlap = character.value.y < goalPosition.value.y + goalPosition.value.height &&
-                       character.value.y + 40 > goalPosition.value.y
-      
-      // 디버깅: 충돌 감지 로그
-      if (xOverlap && yOverlap) {
-        console.log('목표 지점 충돌 감지!')
-        console.log('캐릭터 위치:', character.value.x, character.value.y)
-        console.log('목표 지점 위치:', goalPosition.value.x, goalPosition.value.y)
+      // 캐릭터가 목표 지점보다 높은 위치에 도달하면 성공
+      if (character.value.y < goalPosition.value.y) {
         goalReached.value = true
-        console.log('목표 지점 도달! 게임 성공!')
+        console.log('목표 높이 도달! 게임 성공!')
+        console.log('캐릭터 위치:', character.value.y, '목표 높이:', goalPosition.value.y)
         // 성공 시에도 endGame 호출하되, goalReached 상태로 성공 처리
         endGame()
       }
@@ -566,36 +569,34 @@ export default {
         const xOverlap = character.value.x < platform.x + platform.width &&
                          character.value.x + 28 > platform.x
         
-        // 캐릭터가 플랫폼 위에서만 착지할 수 있도록 더 엄격한 조건 설정
+        // 캐릭터가 플랫폼 위에서 착지하는 조건 (더 관대하게):
         const characterBottom = character.value.y + 40
         const characterTop = character.value.y
         const platformTop = platform.y
         const platformBottom = platform.y + platform.height
         
-        // 캐릭터가 플랫폼 위에서 착지하는 조건 (더 엄격하게):
-        // 1. 캐릭터의 발이 플랫폼 위에 있어야 함 (더 정확한 범위)
+        // 더 관대한 착지 조건:
+        // 1. 캐릭터의 발이 플랫폼 위에 있어야 함
         // 2. 캐릭터가 아래로 떨어지는 중이어야 함
         // 3. 캐릭터의 머리가 플랫폼보다 위에 있어야 함
-        // 4. 캐릭터가 플랫폼의 중간에 닿지 않도록 더 엄격한 조건
         const isLandingOnTop = characterBottom >= platformTop &&
-                               characterBottom <= platformTop + 8 && // 더 정확한 범위
+                               characterBottom <= platformTop + 15 && // 더 관대한 범위
                                characterTop < platformTop &&
-                               character.value.velocityY > 0 &&
-                               character.value.y + 40 > platformTop // 캐릭터 발이 플랫폼 위에 있어야 함
+                               character.value.velocityY > 0
         
         if (xOverlap && isLandingOnTop) {
           character.value.y = platformTop - 40
           character.value.velocityY = 0
           character.value.onGround = true
-        //   console.log('캐릭터 착지! onGround = true')
+          console.log('캐릭터 착지! onGround = true')
         }
       })
       
       // 디버깅: onGround 상태 로그
       if (character.value.onGround) {
-        // console.log('캐릭터 상태: 서있음 (onGround = true)')
+        console.log('캐릭터 상태: 서있음 (onGround = true)')
       } else {
-        // console.log('캐릭터 상태: 점프중 (onGround = false)')
+        console.log('캐릭터 상태: 점프중 (onGround = false)')
       }
       
       // Screen boundaries (wrap around for x-axis, limit for y-axis) - 캐릭터 크기 28px 고려
