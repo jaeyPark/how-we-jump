@@ -238,7 +238,7 @@ export default {
     const gameLoop = ref(null)
     const gameSpeed = ref(0.3) // 게임 속도
     const maxSpeed = 3.0 // 최대 속도 증가
-    const speedIncreaseRate = 0.05 // 속도 증가율 증가
+    const speedIncreaseRate = import.meta.env.VITE_SPEED_INCREASE_RATE || 0.05 // 속도 증가율 증가
     const lastSpeedIncrease = ref(0) // 마지막 속도 증가 시간
     
     // Items
@@ -249,7 +249,12 @@ export default {
     
     // Goal
     const goalReached = ref(false)
-    const goalPosition = ref({ x: 0, y: -2000, width: 360, height: 100 })
+    const goalPosition = ref({ 
+      x: 0, 
+      y: import.meta.env.VITE_GOAL_POSITION_Y || -2000, 
+      width: import.meta.env.VITE_GOAL_POSITION_WIDTH || 360, 
+      height: import.meta.env.VITE_GOAL_POSITION_HEIGHT || 100 
+    })
     
     // Computed
     const selectedCharacterData = computed(() => {
@@ -312,7 +317,12 @@ export default {
       
       // Reset goal
       goalReached.value = false
-      goalPosition.value = { x: 0, y: -2000, width: 360, height: 100 }
+      goalPosition.value = { 
+        x: 0, 
+        y: import.meta.env.VITE_GOAL_POSITION_Y || -2000, 
+        width: import.meta.env.VITE_GOAL_POSITION_WIDTH || 360, 
+        height: import.meta.env.VITE_GOAL_POSITION_HEIGHT || 100 
+      }
       
       // Start game loop
       startGameLoop()
