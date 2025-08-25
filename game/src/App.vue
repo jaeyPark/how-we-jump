@@ -202,8 +202,7 @@ export default {
         color: '#9FA4A9',
         image: '/img/koala.png',
         imageLeft: '/img/koala-left.png',
-        imageRight: '/img/koala.png',
-        sitImage: '/img/koala-sit.png'
+        imageRight: '/img/koala.png'
       },
       { 
         id: 'hy', 
@@ -212,8 +211,7 @@ export default {
         color: '#F9F9F9',
         image: '/img/dog.png',
         imageLeft: '/img/dog-left.png',
-        imageRight: '/img/dog.png',
-        sitImage: '/img/dog-sit.png'
+        imageRight: '/img/dog.png'
       },
       { 
         id: 'jj', 
@@ -222,8 +220,7 @@ export default {
         color: '#C68958',
         image: '/img/bear.png',
         imageLeft: '/img/bear-left.png',
-        imageRight: '/img/bear.png',
-        sitImage: '/img/bear-sit.png'
+        imageRight: '/img/bear.png'
       }
     ])
     
@@ -239,10 +236,9 @@ export default {
     
     const platforms = ref([])
     const gameLoop = ref(null)
-    const keys = ref({})
     const gameSpeed = ref(0.3) // 게임 속도
     const maxSpeed = 3.0 // 최대 속도 증가
-    const speedIncreaseRate = 0.1 // 속도 증가율 증가
+    const speedIncreaseRate = 0.08 // 속도 증가율 증가
     const lastSpeedIncrease = ref(0) // 마지막 속도 증가 시간
     
     // Items
@@ -253,7 +249,7 @@ export default {
     
     // Goal
     const goalReached = ref(false)
-    const goalPosition = ref({ x: 130, y: -1500, width: 100, height: 100 })
+    const goalPosition = ref({ x: 0, y: -1800, width: 360, height: 100 })
     
     // Computed
     const selectedCharacterData = computed(() => {
@@ -271,29 +267,16 @@ export default {
       }
     })
     
-    const gameOverMessage = computed(() => {
-      if (goalReached.value) {
-        return 'THIS IS\nHOW WE DO!'
-      } else if (gameTime.value >= 60) {
-        return 'TIME UP!\nGAME OVER'
-      } else {
-        return 'GAME OVER..'
-      }
-    })
-    
     // Methods
     const startCharacterSelect = () => {
-      console.log('Starting character select...')
       gameState.value = 'characterSelect'
     }
     
     const showHowTo = () => {
-      console.log('Showing how to...')
       gameState.value = 'howTo'
     }
 
     const backToStart = () => {
-      console.log('Backing to start...')
       gameState.value = 'start'
     }
     
@@ -302,7 +285,6 @@ export default {
     }
     
     const startGame = () => {
-      console.log('Starting game...')
       gameState.value = 'playing'
       score.value = 0
       itemScore.value = 0 // 아이템 점수 초기화
@@ -330,7 +312,7 @@ export default {
       
       // Reset goal
       goalReached.value = false
-      goalPosition.value = { x: 130, y: -1500, width: 100, height: 100 }
+      goalPosition.value = { x: 0, y: -2000, width: 360, height: 100 }
       
       // Start game loop
       startGameLoop()
@@ -468,10 +450,8 @@ export default {
             fiveEffectPosition.value = { x: character.value.x, y: character.value.y - 30 }
             fiveEffectTimer.value = 60 // 1초간 표시 (60프레임)
             itemScore.value += 50 // 아이템 점수 증가
-            console.log('inning 수집! 아이템 점수:', itemScore.value)
           } else if (item.type === 'heart') {
             itemScore.value += 20 // 아이템 점수 증가
-            console.log('heart 수집! 아이템 점수:', itemScore.value)
           }
           
           // 아이템 제거
@@ -500,8 +480,6 @@ export default {
       // 캐릭터가 목표 지점보다 높은 위치에 도달하면 성공
       if (character.value.y < goalPosition.value.y) {
         goalReached.value = true
-        console.log('목표 높이 도달! 게임 성공!')
-        console.log('캐릭터 위치:', character.value.y, '목표 높이:', goalPosition.value.y)
         // 성공 시에도 endGame 호출하되, goalReached 상태로 성공 처리
         endGame()
       }
@@ -537,7 +515,6 @@ export default {
       if (gameTime.value > lastSpeedIncrease.value + 5 && gameSpeed.value < maxSpeed) {
         gameSpeed.value += speedIncreaseRate
         lastSpeedIncrease.value = gameTime.value
-        console.log('속도 증가:', gameSpeed.value.toFixed(3))
       }
       
       // Check game over conditions
@@ -569,35 +546,28 @@ export default {
         const xOverlap = character.value.x < platform.x + platform.width &&
                          character.value.x + 28 > platform.x
         
-        // 캐릭터가 플랫폼 위에서 착지하는 조건 (더 관대하게):
+        // 캐릭터가 플랫폼 위에서 착지하는 조건 (더 정확하게):
         const characterBottom = character.value.y + 40
         const characterTop = character.value.y
         const platformTop = platform.y
-        const platformBottom = platform.y + platform.height
         
-        // 더 관대한 착지 조건:
+        // 더 정확한 착지 조건:
         // 1. 캐릭터의 발이 플랫폼 위에 있어야 함
         // 2. 캐릭터가 아래로 떨어지는 중이어야 함
         // 3. 캐릭터의 머리가 플랫폼보다 위에 있어야 함
+        // 4. 캐릭터가 이미 플랫폼 위에 있지 않아야 함
         const isLandingOnTop = characterBottom >= platformTop &&
-                               characterBottom <= platformTop + 15 && // 더 관대한 범위
+                               characterBottom <= platformTop + 10 && // 적절한 범위로 조정
                                characterTop < platformTop &&
-                               character.value.velocityY > 0
+                               character.value.velocityY > 0 &&
+                               character.value.y + 40 > platformTop // 캐릭터 발이 플랫폼 위에 있어야 함
         
         if (xOverlap && isLandingOnTop) {
           character.value.y = platformTop - 40
           character.value.velocityY = 0
           character.value.onGround = true
-          console.log('캐릭터 착지! onGround = true')
         }
       })
-      
-      // 디버깅: onGround 상태 로그
-      if (character.value.onGround) {
-        console.log('캐릭터 상태: 서있음 (onGround = true)')
-      } else {
-        console.log('캐릭터 상태: 점프중 (onGround = false)')
-      }
       
       // Screen boundaries (wrap around for x-axis, limit for y-axis) - 캐릭터 크기 28px 고려
       if (character.value.x < -28) character.value.x = 332
@@ -739,7 +709,6 @@ export default {
       gameSpeed,
       selectedCharacterData,
       currentCharacterImage,
-      gameOverMessage,
       items,
       showFiveEffect,
       fiveEffectPosition,
