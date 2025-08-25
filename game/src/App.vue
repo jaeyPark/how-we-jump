@@ -231,14 +231,15 @@ export default {
       velocityY: -10,
       velocityX: 0,
       onGround: false,
-      direction: 'right' // 'left' 또는 'right'
+      direction: 'right', // 'left' 또는 'right'
+      canJump: true // 점프 가능 여부
     })
     
     const platforms = ref([])
     const gameLoop = ref(null)
     const gameSpeed = ref(0.3) // 게임 속도
     const maxSpeed = 3.0 // 최대 속도 증가
-    const speedIncreaseRate = import.meta.env.VITE_SPEED_INCREASE_RATE || 0.05 // 속도 증가율 증가
+    const speedIncreaseRate = 0.05 // 속도 증가율 증가
     const lastSpeedIncrease = ref(0) // 마지막 속도 증가 시간
     
     // Items
@@ -249,12 +250,7 @@ export default {
     
     // Goal
     const goalReached = ref(false)
-    const goalPosition = ref({ 
-      x: 0, 
-      y: import.meta.env.VITE_GOAL_POSITION_Y || -2000, 
-      width: import.meta.env.VITE_GOAL_POSITION_WIDTH || 360, 
-      height: import.meta.env.VITE_GOAL_POSITION_HEIGHT || 100 
-    })
+    const goalPosition = ref({ x: 0, y: -2000, width: 360, height: 100 })
     
     // Computed
     const selectedCharacterData = computed(() => {
@@ -305,7 +301,8 @@ export default {
         velocityY: 0, // 초기 점프 취소
         velocityX: 0,
         onGround: false,
-        direction: 'right'
+        direction: 'right',
+        canJump: true // 점프 가능 상태로 초기화
       }
       
       // Generate initial platforms
@@ -317,12 +314,7 @@ export default {
       
       // Reset goal
       goalReached.value = false
-      goalPosition.value = { 
-        x: 0, 
-        y: import.meta.env.VITE_GOAL_POSITION_Y || -2000, 
-        width: import.meta.env.VITE_GOAL_POSITION_WIDTH || 360, 
-        height: import.meta.env.VITE_GOAL_POSITION_HEIGHT || 100 
-      }
+      goalPosition.value = { x: 0, y: -2000, width: 360, height: 100 }
       
       // Start game loop
       startGameLoop()
@@ -496,9 +488,15 @@ export default {
     }
     
     const startGameLoop = () => {
-      gameLoop.value = setInterval(() => {
-        updateGame()
-      }, 16) // ~60 FPS
+      let lastTime = 0
+      const gameLoop = (currentTime) => {
+        if (currentTime - lastTime >= 16) { // ~60 FPS
+          updateGame()
+          lastTime = currentTime
+        }
+        gameLoop.value = requestAnimationFrame(gameLoop)
+      }
+      gameLoop.value = requestAnimationFrame(gameLoop)
     }
     
     const updateGame = () => {
@@ -601,10 +599,16 @@ export default {
     }
     
     const jump = () => {
-      // 점프 (플랫폼에 있을 때만)
-      if (character.value.onGround) {
+      // 점프 (플랫폼에 있을 때만, 중복 점프 방지)
+      if (character.value.onGround && character.value.canJump) {
         character.value.velocityY = -10
         character.value.onGround = false
+        character.value.canJump = false
+        
+        // 0.3초 후 점프 가능하도록 설정 (중복 점프 방지)
+        setTimeout(() => {
+          character.value.canJump = true
+        }, 300)
       }
     }
     
@@ -632,7 +636,10 @@ export default {
     
     const endGame = () => {
       gameState.value = 'gameOver'
-      clearInterval(gameLoop.value)
+      if (gameLoop.value) {
+        cancelAnimationFrame(gameLoop.value)
+        gameLoop.value = null
+      }
     }
     
     const restartGame = () => {
@@ -667,8 +674,21 @@ export default {
     }
     
     // Keyboard event handlers
+    const lastKeyPress = ref({})
+    const keyCooldown = 100 // 100ms 쿨다운
+    
     const handleKeyDown = (e) => {
       if (gameState.value !== 'playing') return
+      
+      const now = Date.now()
+      const key = e.key.toLowerCase()
+      
+      // 키 입력 쿨다운 체크
+      if (lastKeyPress.value[key] && now - lastKeyPress.value[key] < keyCooldown) {
+        return
+      }
+      
+      lastKeyPress.value[key] = now
       
       switch (e.key) {
         case 'ArrowLeft':
@@ -714,7 +734,7 @@ export default {
     
     onUnmounted(() => {
       if (gameLoop.value) {
-        clearInterval(gameLoop.value)
+        cancelAnimationFrame(gameLoop.value)
       }
       window.removeEventListener('keydown', handleKeyDown)
       window.removeEventListener('keyup', handleKeyUp)

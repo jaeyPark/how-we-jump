@@ -95,30 +95,6 @@ npm run preview
 - **말티즈 (HY)**: White (#F9F9F9)
 - **곰 (JJ)**: Light Brown (#C68958)
 
-## ⚙️ 환경 변수 설정
-
-게임의 난이도와 목표 위치를 조정하려면 프로젝트 루트에 `.env` 파일을 생성하고 다음 변수들을 설정할 수 있습니다:
-
-```bash
-# 속도 증가율 (기본값: 0.05)
-VITE_SPEED_INCREASE_RATE=0.05
-
-# 목표 위치 Y 좌표 (기본값: -2000)
-VITE_GOAL_POSITION_Y=-2000
-
-# 목표 위치 너비 (기본값: 360)
-VITE_GOAL_POSITION_WIDTH=360
-
-# 목표 위치 높이 (기본값: 100)
-VITE_GOAL_POSITION_HEIGHT=100
-```
-
-### 환경 변수 설명
-- **VITE_SPEED_INCREASE_RATE**: 게임 진행에 따라 속도가 증가하는 비율입니다. 값이 클수록 게임이 더 빨리 어려워집니다.
-- **VITE_GOAL_POSITION_Y**: 목표 지점의 Y 좌표입니다. 값이 작을수록 목표가 더 높은 위치에 있습니다.
-- **VITE_GOAL_POSITION_WIDTH**: 목표 지점의 너비입니다.
-- **VITE_GOAL_POSITION_HEIGHT**: 목표 지점의 높이입니다.
-
 ## 📱 기술 스택
 
 - **프론트엔드**: Vue.js 3
