@@ -50,6 +50,25 @@ npm run build
 npm run preview
 ```
 
+## 🌐 배포
+
+### Render 배포
+이 프로젝트는 Render를 통해 배포됩니다.
+
+1. Render 계정 생성 및 로그인
+2. GitHub 저장소 연결
+3. 새 Static Site 서비스 생성
+4. 다음 설정 사용:
+   - **Build Command**: `npm install && npm run build`
+   - **Publish Directory**: `dist`
+   - **Node.js Version**: 20
+
+### 로컬 배포 테스트
+```bash
+npm run build
+npm run preview
+```
+
 ## 🎮 게임 플레이
 
 1. **시작 화면**: PLAY 버튼 클릭
