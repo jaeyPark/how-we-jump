@@ -129,12 +129,22 @@ let obstacles = [];
 let combo = 0;
 let comboMultiplier = 1;
 
+// 목표지점 시스템
+let goalPosition = {
+    y: -2000,  // 게임 시작점에서 2000픽셀 위
+    height: 100,
+    reached: false
+};
+
 // 초기 플랫폼 생성
 function createInitialPlatforms() {
     platforms = [];
     items = [];
     obstacles = [];
     graffitiObjects = [];
+    
+    // 목표지점 상태 초기화
+    goalPosition.reached = false;
 
     // 시작 플랫폼
     platforms.push({
@@ -476,7 +486,7 @@ function handleCanvasClick(e) {
     if (gameState === 'start') {
         // PLAY 버튼 클릭 확인 (영역을 더 크게)
         if (x >= canvas.width / 2 - 80 && x <= canvas.width / 2 + 80 &&
-            y >= canvas.height / 2 + 10 && y <= canvas.height / 2 + 70) {
+            y >= canvas.height / 2 + 20 && y <= canvas.height / 2 + 80) {
             console.log('PLAY 버튼 클릭됨!');
             gameState = 'characterSelect';
         }
@@ -752,6 +762,32 @@ function gameOver() {
     gameOverScore.textContent = `점수: ${score}`;
 }
 
+// 목표지점 도달 확인
+function checkGoalReached() {
+    if (!goalPosition.reached && player.y <= goalPosition.y + goalPosition.height) {
+        goalPosition.reached = true;
+        gameSuccess();
+    }
+}
+
+// 게임 성공 처리
+function gameSuccess() {
+    gameRunning = false;
+    gameState = 'gameOver';
+
+    // 최고점수 업데이트
+    if (score > highScore) {
+        highScore = score;
+        localStorage.setItem('doodleJumpHighScore', highScore);
+        highScoreElement.textContent = highScore;
+    }
+
+    // 성공 UI 표시
+    gameOverUI.classList.remove('hidden');
+    gameOverTitle.textContent = '목표 달성!';
+    gameOverScore.textContent = `성공! 점수: ${score}`;
+}
+
 // 시간 초과 처리
 function timeUp() {
     gameRunning = false;
@@ -783,6 +819,7 @@ function restartGame() {
     player.velocityX = 0;
     player.onPlatform = false;
     player.invincible = false;
+    goalPosition.reached = false; // 목표지점 상태 초기화
     createInitialPlatforms();
     items = [];
     obstacles = [];
@@ -1039,6 +1076,38 @@ function drawBackground() {
     }
 }
 
+// 목표지점 그리기
+function drawGoal() {
+    // 플레이어의 y 위치와 목표지점의 상대적 위치 계산
+    const relativeY = goalPosition.y - (canvas.height - 100 - player.y);
+    
+    // 목표지점이 화면 범위 내에 있을 때만 그리기
+    if (relativeY >= -goalPosition.height && relativeY <= canvas.height) {
+        // 목표지점 배경 (밝은 금색)
+        ctx.fillStyle = 'rgba(255, 215, 0, 0.8)';
+        ctx.fillRect(0, relativeY, canvas.width, goalPosition.height);
+        
+        // 목표지점 테두리
+        ctx.strokeStyle = '#FFD700';
+        ctx.lineWidth = 3;
+        ctx.strokeRect(0, relativeY, canvas.width, goalPosition.height);
+        
+        // 목표지점 텍스트
+        ctx.fillStyle = '#B8860B';
+        ctx.font = 'bold 24px DNFBitBitv2';
+        ctx.textAlign = 'center';
+        ctx.fillText('🎯 목표지점 🎯', canvas.width / 2, relativeY + goalPosition.height / 2 + 8);
+        
+        // 목표까지 남은 거리 표시
+        const distanceToGoal = Math.max(0, Math.ceil((player.y - goalPosition.y) / 100));
+        if (distanceToGoal > 0) {
+            ctx.fillStyle = 'white';
+            ctx.font = '14px DNFBitBitv2';
+            ctx.fillText(`목표까지 ${distanceToGoal}m`, canvas.width / 2, relativeY - 10);
+        }
+    }
+}
+
 // 게임 화면 내 점수 표시
 function drawGameUI() {
     ctx.font = '16px DNFBitBitv2';
@@ -1058,11 +1127,49 @@ function drawGameUI() {
     // 시간
     ctx.strokeText(`시간: ${timeLeft}초`, 10, 80);
     ctx.fillText(`시간: ${timeLeft}초`, 10, 80);
+    
+    // 목표까지의 거리
+    const distanceToGoal = Math.max(0, Math.ceil((player.y - goalPosition.y) / 100));
+    if (distanceToGoal > 0) {
+        ctx.strokeText(`목표까지: ${distanceToGoal}m`, 10, 105);
+        ctx.fillText(`목표까지: ${distanceToGoal}m`, 10, 105);
+    } else {
+        ctx.strokeText(`목표 도달!`, 10, 105);
+        ctx.fillText(`목표 도달!`, 10, 105);
+    }
 
     // 최고점수 (우상단)
     ctx.textAlign = 'right';
     ctx.strokeText(`최고: ${highScore}`, canvas.width - 10, 30);
     ctx.fillText(`최고: ${highScore}`, canvas.width - 10, 30);
+    
+    // 진행률 바 (우상단)
+    const totalDistance = canvas.height - 100 - goalPosition.y; // 전체 거리
+    const currentProgress = Math.max(0, Math.min(1, (canvas.height - 100 - player.y) / totalDistance));
+    
+    // 진행률 바 배경
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+    ctx.fillRect(canvas.width - 30, 50, 20, 100);
+    
+    // 진행률 바 채우기
+    ctx.fillStyle = currentProgress >= 1 ? '#00FF00' : '#FFD700';
+    const progressHeight = 100 * currentProgress;
+    ctx.fillRect(canvas.width - 30, 50 + (100 - progressHeight), 20, progressHeight);
+    
+    // 진행률 바 테두리
+    ctx.strokeStyle = 'white';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(canvas.width - 30, 50, 20, 100);
+    
+    // 진행률 텍스트
+    ctx.font = '12px DNFBitBitv2';
+    ctx.textAlign = 'center';
+    ctx.fillStyle = 'white';
+    ctx.strokeStyle = 'black';
+    ctx.lineWidth = 2;
+    const progressPercent = Math.floor(currentProgress * 100);
+    ctx.strokeText(`${progressPercent}%`, canvas.width - 20, 165);
+    ctx.fillText(`${progressPercent}%`, canvas.width - 20, 165);
 }
 
 // 시작 화면 그리기
@@ -1084,21 +1191,26 @@ function drawStartScreen() {
     ctx.fillStyle = '#FFA500';
     ctx.font = '16px DNFBitBitv2';
     ctx.fillText('BGM: HOW WE RISE', canvas.width / 2, canvas.height / 2 - 40);
+    
+    // 게임 목표 설명
+    ctx.fillStyle = '#FFD700';
+    ctx.font = 'bold 14px DNFBitBitv2';
+    ctx.fillText('🎯 1분 안에 목표지점 도달! 🎯', canvas.width / 2, canvas.height / 2 - 15);
 
     // 깜빡이는 안내 메시지
     const blink = Math.floor(Date.now() / 750) % 2;
     if (blink) {
         ctx.fillStyle = 'white';
         ctx.font = '20px DNFBitBitv2';
-        ctx.fillText('PRESS PLAY', canvas.width / 2, canvas.height / 2);
+        ctx.fillText('PRESS PLAY', canvas.width / 2, canvas.height / 2 + 10);
     }
 
     // PLAY 버튼
     ctx.fillStyle = '#FF69B4';
-    ctx.fillRect(canvas.width / 2 - 60, canvas.height / 2 + 20, 120, 40);
+    ctx.fillRect(canvas.width / 2 - 60, canvas.height / 2 + 30, 120, 40);
     ctx.fillStyle = 'white';
     ctx.font = 'bold 18px DNFBitBitv2';
-    ctx.fillText('PLAY', canvas.width / 2, canvas.height / 2 + 45);
+    ctx.fillText('PLAY', canvas.width / 2, canvas.height / 2 + 55);
 
     // 크레딧
     ctx.fillStyle = '#888';
@@ -1174,6 +1286,7 @@ function gameLoop() {
         drawGraffiti();
         drawItems();
         drawObstacles();
+        drawGoal(); // 목표지점도 표시
         drawPlayer();
         drawGameUI();
         requestAnimationFrame(gameLoop);
@@ -1194,6 +1307,9 @@ function gameLoop() {
     updateItems();
     updateObstacles();
     updateGraffiti();
+    
+    // 목표지점 도달 확인
+    checkGoalReached();
 
     // 점수 업데이트
     score += 1;
@@ -1220,6 +1336,7 @@ function gameLoop() {
     drawGraffiti();
     drawItems();
     drawObstacles();
+    drawGoal(); // 목표지점 그리기 추가
     drawPlayer();
     drawGameUI();
 
