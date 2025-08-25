@@ -238,7 +238,7 @@ export default {
     const gameLoop = ref(null)
     const gameSpeed = ref(0.3) // 게임 속도
     const maxSpeed = 3.0 // 최대 속도 증가
-    const speedIncreaseRate = 0.08 // 속도 증가율 증가
+    const speedIncreaseRate = 0.05 // 속도 증가율 증가
     const lastSpeedIncrease = ref(0) // 마지막 속도 증가 시간
     
     // Items
@@ -249,7 +249,7 @@ export default {
     
     // Goal
     const goalReached = ref(false)
-    const goalPosition = ref({ x: 0, y: -1800, width: 360, height: 100 })
+    const goalPosition = ref({ x: 0, y: -2000, width: 360, height: 100 })
     
     // Computed
     const selectedCharacterData = computed(() => {
@@ -630,10 +630,22 @@ export default {
     }
     
     const shareScore = () => {
-      const text = `IN A MINUTE 게임에서 ${score.value}점을 획득했습니다! 🎮`
+      let text
+      let title
+      
+      if (goalReached.value) {
+        // 성공했을 때
+        text = `THIS IS HOW WE DO! ${score.value}점을 획득했습니다! 🎉`
+        title = 'HOW WE JUMP - 성공!'
+      } else {
+        // 게임 오버했을 때
+        text = `TRY AGAIN! ${score.value}점을 획득했습니다. 🎮`
+        title = 'HOW WE JUMP'
+      }
+      
       if (navigator.share) {
         navigator.share({
-          title: 'IN A MINUTE - HOW WE RISE',
+          title: title,
           text: text,
           url: window.location.href
         })
